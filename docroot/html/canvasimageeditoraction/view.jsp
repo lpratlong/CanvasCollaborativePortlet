@@ -29,10 +29,19 @@
 
 <aui:script>
 var <portlet:namespace />draw = null;
-Liferay.Portlet.ready(function() {
-	<portlet:namespace />draw = new Drawer();
-	<portlet:namespace />draw.init("<portlet:namespace />drawerCanvas", "<%= drawerAction %>");
-	<portlet:namespace />polling();
+AUI().use('aui-color-picker', function(A) {
+	A.on('domready', function(event) {
+		<portlet:namespace />draw = new Drawer();
+		<portlet:namespace />draw.init("<portlet:namespace />drawerCanvas", "<%= drawerAction %>");
+		<portlet:namespace />polling();  
+		new A.ColorPicker({   
+			after: {   
+				colorChange: function(event) {
+					<portlet:namespace />draw.changeColor('#' + this.get('hex'));			
+				}
+			} 
+		}).render("#<portlet:namespace />colorPicker");
+	});
 });
 
 function <portlet:namespace />polling() {
@@ -55,7 +64,6 @@ function <portlet:namespace />processResponse(json) {
 		var response = A.JSON.parse(json);
 		var newFigs = response.newFigures;
 		if (newFigs != "[]") {
-			var div = A.one("#<portlet:namespace />output");
 			var figsArray = eval(newFigs);
 			<portlet:namespace />draw.drawFigures(figsArray);
 		}
@@ -64,5 +72,7 @@ function <portlet:namespace />processResponse(json) {
 </aui:script>
 
 <canvas id="<portlet:namespace />drawerCanvas" style="border:1px solid #000;">
-PAS DE CANVAS
+	Your browser does not support the Canvas module.
 </canvas>
+<br />
+<div id="<portlet:namespace />colorPicker"></div>

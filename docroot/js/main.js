@@ -33,6 +33,8 @@ function Drawer(canvasId) {
 	this.previousPoint = null;
 	this.url = null;
 	this.currentFigure = [];
+	this.tool = "pencil";
+	this.color = "black";
 	
 	this.init = function(canvasId, url) {
 		this.canvas = document.getElementById(canvasId);
@@ -46,12 +48,22 @@ function Drawer(canvasId) {
 		}
 	};
 	
+	this.changeTool = function(tool) {
+		this.tool = tool;
+	};
+	
+	this.changeColor = function(color) {
+		this.color = color;
+		this.ctx.strokeStyle = color;
+	};
+	
 	this.startDrawing = function(event, elem) {
 		elem.previousPoint = EventTool.getPosition(event, elem.canvas);
 		elem.canvas.onmousemove = EventTool.getEventFunction(elem, elem.drawLine);
 		document.body.onmouseup = EventTool.getEventFunction(elem, elem.stopDrawing);
 		elem.canvas.onmouseup = null;
 		elem.currentFigure = [];
+		elem.currentFigure.push({ color: elem.color });
 		elem.currentFigure.push(elem.previousPoint);
 	};
 	
@@ -60,7 +72,7 @@ function Drawer(canvasId) {
 		elem.ctx.beginPath();	
 		elem.ctx.moveTo(elem.previousPoint.x, elem.previousPoint.y);
 		elem.ctx.lineTo(point.x, point.y);
-		// ctx.strokeStyle = couleur;
+		elem.ctx.strokeStyle = elem.color;
 		elem.ctx.stroke();
 		elem.previousPoint = point;
 		elem.currentFigure.push(point);
@@ -78,19 +90,18 @@ function Drawer(canvasId) {
 	
 	this.drawFigures = function(figures) {
 		if (figures && (figures.length > 0)) {
-			this.ctx.beginPath();
 			for (var i = 0; i < figures.length; i++) {
 				var fig = eval(figures[i]);
-				if (fig && (fig.length > 0)) {
-					this.ctx.moveTo(fig[0].x, fig[0].y);
-					for (var j = 1; j < fig.length; j++) {
+				if (fig && (fig.length > 1)) {
+					this.ctx.beginPath();
+					this.ctx.strokeStyle = fig[0].color;
+					this.ctx.moveTo(fig[1].x, fig[1].y);
+					for (var j = 2; j < fig.length; j++) {
 						this.ctx.lineTo(fig[j].x, fig[j].y);
 					}
+					this.ctx.stroke();
 				}
 			}
-			this.ctx.strokeStyle = "red";
-			this.ctx.stroke();
-			this.ctx.strokeStyle = "black";
 		}
 	};
 }
